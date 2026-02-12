@@ -1,0 +1,359 @@
+\documentclass[12pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{amssymb} % for \square
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+\newcommand{\blank}{\(\square\)} % ← エラー回避用プレースホルダ
+
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{4pt}
+
+\begin{document}
+
+\begin{center}
+{\LARGE\bfseries Assignment \#1: Probability Models}
+\end{center}
+
+\section*{General Instructions}
+
+\begin{itemize}
+  \item There are two problems. Carefully read all notes and questions.
+  \item Answers should be clearly typed as in a technical report.
+  \item Type out the whole solutions and answers, submit a PDF report on Canvas (or other associated material).
+  \item Scores for rubrics are shown in [ ] within each question.
+\end{itemize}
+
+\section*{Problem 1: Naive Bayes for Customer Churn Using Observed Data [50 pts]}
+
+\subsection*{Background}
+
+You are a data scientist working for a subscription-based company. Your goal is to predict whether a customer will churn ($Y=1$) or not churn ($Y=0$) using behavioral data.
+
+You will build two Naive Bayes models, each using a different feature set. For each model, you will:
+\begin{enumerate}
+  \item Estimate probabilities from data
+  \item Apply Laplace smoothing
+  \item Compute posterior churn probabilities
+  \item Compare model conclusions
+\end{enumerate}
+
+\subsection*{Given (common to both models)}
+
+Let $Y$ represent the event churn. From historical data, the overall churn rate is:
+\begin{itemize}
+  \item $P(Y=1) = 0.3$
+  \item $P(Y=0) = 0.7$
+\end{itemize}
+
+\subsection*{Model A --- Support-related features}
+
+\subsection*{Feature definitions}
+
+\begin{itemize}
+  \item $(X_1 = 1)$: Customer opened many support tickets last month
+  \item $(X_2 = 1)$: Customer spent a lot of time on help / FAQ pages
+\end{itemize}
+
+\subsection*{Training dataset (historical sample)}
+
+\begin{tabular}{|c|c|c|c|}
+\hline
+Churn (Y) & $X_1=1$ & $X_1=0$ & Total \\
+\hline
+$Y=1$ & 24 & 6 & 30 \\
+\hline
+$Y=0$ & 14 & 56 & 70 \\
+\hline
+\end{tabular}
+
+\vspace{4mm}
+
+\begin{tabular}{|c|c|c|c|}
+\hline
+Churn (Y) & $X_2=1$ & $X_2=0$ & Total \\
+\hline
+$Y=1$ & 25 & 5 & 30 \\
+\hline
+$Y=0$ & 13 & 57 & 70 \\
+\hline
+\end{tabular}
+
+\vspace{2mm}
+(Note: each feature table is estimated independently, as in Naive Bayes.)
+
+For an observed customer with $X_1=1, X_2=1$, answer the following questions:
+
+\subsection*{Question A1 --- Estimate probabilities}
+
+Using \textbf{Laplace smoothing}, estimate:
+\begin{itemize}
+  \item [5 pts] $P(X_1=1 \mid Y=1)$, $P(X_1=1 \mid Y=0)$
+  \item [5 pts] $P(X_2=1 \mid Y=1)$, $P(X_2=1 \mid Y=0)$
+\end{itemize}
+
+\subsection*{Answer for A1}
+$P(X_1=1 \mid Y=1) = \frac{24 + 1}{30 + 2} = \frac{25}{32} 
+\approx 0.781$
+
+$P(X_1=1 \mid Y=0) = \frac{14 + 1}{70 + 2} = \frac{15}{72} 
+\approx 0.208$
+
+$P(X_2=1 \mid Y=1) = \frac{25 + 1}{30 + 2} = \frac{26}{32} 
+\approx 0.812$
+
+$P(X_2=1 \mid Y=0) = \frac{13 + 1}{70 + 2} = \frac{14}{72} 
+\approx 0.194$
+\subsection*{Question A2 --- Posterior probabilities}
+
+Using your smoothed estimates and Naive Bayes, compute the
+\textbf{normalized posterior probabilities}:
+\begin{itemize}
+  \item [4 pts] $P(Y=1 \mid X_1=1, X_2=1)$
+  \item [4 pts] $P(Y=0 \mid X_1=1, X_2=1)$
+\end{itemize}
+
+\subsection*{Answer for A2}
+
+\[
+\begin{aligned}
+P(Y=1 \mid X_1=1, X_2=1)
+&= P(Y=1)P(X_1=1 \mid Y=1)P(X_2=1 \mid Y=1) \\
+&= \frac{3}{10} \cdot \frac{25}{32} \cdot \frac{26}{32}
+\approx 0.1904
+\end{aligned}
+\]
+
+\[
+\begin{aligned}
+P(Y=0 \mid X_1=1, X_2=1)
+&= P(Y=0)P(X_1=1 \mid Y=0)P(X_2=1 \mid Y=0) \\
+&= \frac{7}{10} \cdot \frac{15}{72} \cdot \frac{14}{72}
+\approx 0.0283
+\end{aligned}
+\]
+
+Then, compute normalized posterior probabilities based on the result above
+
+$P(Y=1 \mid X_1=1, X_2=1) = \frac{0.1904}{0.1904 + 0.0283} \approx 0.8703$
+
+$P(Y=0 \mid X_1=1, X_2=1) = \frac{0.0283}{0.1904 + 0.0283} \approx 0.1296$
+
+\subsection*{Question A3 --- Prediction}
+
+Based on Model A:
+\begin{itemize}
+  \item [1 pts] Does the model predict churn or no churn?
+  \item [1 pts] What is the predicted probability?
+\end{itemize}
+
+\subsection*{Answer for A3}
+\begin{itemize}
+  \item The model predicts churn (Y = 1), since
+  $P(Y=1 \mid X_1=1, X_2=1) > P(Y=0 \mid X_1=1, X_2=1)$.
+  \item The predicted probability of churn is
+  $P(Y=1 \mid X_1=1, X_2=1) \approx 0.87$.
+\end{itemize}
+
+
+\subsection*{Model B --- Pricing and competition features}
+
+\subsection*{Feature definitions}
+
+\begin{itemize}
+  \item $(Z_1 = 1)$: Customer changed pricing plan last month
+  \item $(Z_2 = 1)$: Customer received a competitor's marketing email
+\end{itemize}
+
+\subsection*{Training dataset (historical sample)}
+
+\begin{tabular}{|c|c|c|c|}
+\hline
+Churn (Y) & $Z_1=1$ & $Z_1=0$ & Total \\
+\hline
+$Y=1$ & 18 & 12 & 30 \\
+\hline
+$Y=0$ & 21 & 49 & 70 \\
+\hline
+\end{tabular}
+
+\vspace{4mm}
+
+\begin{tabular}{|c|c|c|c|}
+\hline
+Churn (Y) & $Z_2=1$ & $Z_2=0$ & Total \\
+\hline
+$Y=1$ & 15 & 15 & 30 \\
+\hline
+$Y=0$ & 28 & 42 & 70 \\
+\hline
+\end{tabular}
+
+For an observed customer with $Z_1=1, Z_2=1$, answer the following questions:
+
+\subsection*{Question B1 --- Estimate probabilities}
+
+Using \textbf{Laplace smoothing}, estimate:
+\begin{itemize}
+  \item [5 pts] $P(Z_1=1 \mid Y=1)$, $P(Z_1=1 \mid Y=0)$
+  \item [5 pts] $P(Z_2=1 \mid Y=1)$, $P(Z_2=1 \mid Y=0)$
+\end{itemize}
+
+\subsection*{Answer for B1}
+$P(Z_1=1 \mid Y=1) = \frac{18 + 1}{30 + 2} = \frac{19}{32} 
+\approx 0.593$
+
+$P(Z_1=1 \mid Y=0) = \frac{21 + 1}{70 + 2} = \frac{22}{72} 
+\approx 0.305$
+
+$P(Z_2=1 \mid Y=1) = \frac{15 + 1}{30 + 2} = \frac{16}{32} 
+= 0.5$
+
+$P(Z_2=1 \mid Y=0) = \frac{28 + 1}{70 + 2} = \frac{29}{72} 
+\approx 0.402$
+\subsection*{Question B2 --- Posterior probabilities}
+
+Compute the normalized posterior probabilities:
+\begin{itemize}
+  \item [4 pts] $P(Y=1 \mid Z_1=1, Z_2=1)$
+  \item [4 pts] $P(Y=0 \mid Z_1=1, Z_2=1)$
+\end{itemize}
+
+\subsection*{Answer for B2}
+
+\[
+\begin{aligned}
+P(Y=1 \mid Z_1=1, Z_2=1)
+&= P(Y=1)P(Z_1=1 \mid Y=1)P(Z_2=1 \mid Y=1) \\
+&= \frac{3}{10} \cdot \frac{19}{32} \cdot \frac{16}{32}
+\approx 0.0890
+\end{aligned}
+\]
+
+\[
+\begin{aligned}
+P(Y=0 \mid Z_1=1, Z_2=1)
+&= P(Y=0)P(Z_1=1 \mid Y=0)P(Z_2=1 \mid Y=0) \\
+&= \frac{7}{10} \cdot \frac{22}{72} \cdot \frac{29}{72}
+\approx 0.0861
+\end{aligned}
+\]
+
+Then, compute normalized posterior probabilities based on the result above
+
+$P(Y=1 \mid Z_1=1, Z_2=1) = \frac{0.0890}{0.0890 + 0.0861} \approx 0.5083$
+
+$P(Y=0 \mid Z_1=1, Z_2=1) = \frac{0.0861}{0.0890 + 0.0861} \approx 0.4916$
+
+\subsection*{Question B3 --- Prediction}
+
+Based on Model B:
+\begin{itemize}
+  \item [1 pts] Does the model predict churn or no churn?
+  \item [1 pts] What is the predicted probability?
+\end{itemize}
+
+\subsection*{Answer for B3}
+\begin{itemize}
+  \item The model predicts churn (Y = 1), since
+  $P(Y=1 \mid Z_1=1, Z_2=1) > P(Y=0 \mid Z_1=1, Z_2=1)$.
+  \item The predicted probability of churn is
+  $P(Y=1 \mid Z_1=1, Z_2=1) \approx 0.5083$.
+\end{itemize}
+
+\subsection*{Model comparison and interpretation}
+
+Compare the predictions from Model A and Model B:
+\begin{itemize}
+  \item [5 pts] Why are the predicted churn probabilities so different?
+  \item [5 pts] Which model's prediction is more trustworthy? Why?
+\end{itemize}
+
+\subsection*{Answer}
+\begin{itemize}
+  \item The reason why the predicted churn probabilities are so different is because 
+  the two models use the different feature with different strengths of association with churn.
+  \item Model A is more trustworthy because the posterior probability is much higher and further
+  from the prior. On the other hand, model B's prediction is close to 0.5, which is less useful to predict.
+\end{itemize}
+\section*{Problem 2 [50 pts]}
+
+Complete the Hidden Markov Model (HMM) Forward/Backtracking table using the following transition and emission probabilities.
+
+\subsection*{Transition}
+
+\begin{tabular}{|c|c|c|c|}
+\hline
+From $\rightarrow$ To & Sunny & Cloudy & Rainy \\
+\hline
+Sunny & 0.33 & 0.67 & 0.00 \\
+Cloudy & 0.33 & 0.00 & 0.67 \\
+Rainy & 0.33 & 0.33 & 0.33 \\
+\hline
+\end{tabular}
+
+\subsection*{Emission}
+
+\begin{tabular}{|c|c|c|}
+\hline
+Weather $\rightarrow$ Behavior & Walk & Umbrella \\
+\hline
+Sunny & $4/4 = 1.0$ & $0/3 = 0.0$ \\
+Cloudy & $2/3 \approx 0.67$ & $1/3 \approx 0.33$ \\
+Rainy & $1/3 \approx 0.33$ & $2/3 \approx 0.67$ \\
+\hline
+\end{tabular}
+
+\vspace{4mm}
+You can manually compute (show the steps), code (submit through GitHub), or use a spreadsheet (submit the spreadsheet) to work out the solutions.
+
+\subsection*{Answer for Problem2}
+
+\href{}{\texttt{HMM.ipynb}}
+
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|c|}
+\hline
+Day & Observation & ? $->$ & Sunny & Cloudy & Rainy \\
+\hline
+ &  & $V0(?)$ & 0.33 & 0.33 & 0.33 \\
+\hline
+1 & Walk & $P(W \mid ?)$ & 1.00 &  0.67 & 0.33  \\
+\hline
+& &$V1(?) = V0(?)P(W \mid ?)$ & 0.33 & \textcolor{red}{0.22} & 0.11\\
+\hline
+&  & & & &\\
+\hline
+2 & & $V1(S)P(? \mid S)$ & 0.11 & 0.22 & 0.00 \\
+\hline
+& & $V1(C)P(? \mid C)$ & 0.07 & 0.00 & \textcolor{red}{0.15} \\
+\hline
+& & $V1(R)P(? \mid R)$ & 0.04 & 0.04  & 0.04\\
+\hline
+& Umbrella & $P(U \mid ?)$ & 0 & 0.33 & 0.67 \\
+\hline
+& & $V2(?) = \max(?)P(U \mid ?)$ & 0 & 0.07 & \textcolor{red}{0.10} \\
+\hline
+&  & & & &\\
+\hline
+3 & & $V2(S)P(? \mid S)$ & 0.00 & 0.00 & 0.00 \\
+\hline
+& & $V2(C)P(? \mid C)$ & 0.02 & 0.00 & 0.05 \\
+\hline
+& & $V2(R)P(? \mid R)$ & \textcolor{red}{0.03} & 0.03  & 0.03\\
+\hline
+& Walk & $P(W \mid ?)$ & 1.00 & 0.67 & 0.33 \\
+\hline
+& & $V3(?) = \max(?)P(U \mid ?)$ & \textcolor{red}{0.03} & 0.02 & 0.02 \\
+\hline
+\end{tabular}
+\end{center}
+
+
+\end{document}
